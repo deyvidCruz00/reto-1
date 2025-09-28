@@ -1,0 +1,70 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # Rutas para Order Management Service
+        - id: order-service
+          uri: lb://order-management-service
+          predicates:
+            - Path=/api/order/**
+          filters:
+            - RewritePath=/api/order/(?<path>.*), /order/$\{path}
+            
+        # Rutas para User Management Service  
+        - id: user-service
+          uri: lb://user-management-service
+          predicates:
+            - Path=/api/customer/**
+          filters:
+            - RewritePath=/api/customer/(?<path>.*), /customer/$\{path}
+
+        # Ruta para health checks
+        - id: order-service-health
+          uri: lb://order-management-service
+          predicates:
+            - Path=/api/order-health
+          filters:
+            - RewritePath=/api/order-health, /health
+            
+        - id: user-service-health
+          uri: lb://user-management-service
+          predicates:
+            - Path=/api/user-health
+          filters:
+            - RewritePath=/api/user-health, /health
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.netflix.eureka: DEBUG

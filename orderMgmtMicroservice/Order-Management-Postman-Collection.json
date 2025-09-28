@@ -1,0 +1,238 @@
+{
+  "info": {
+    "name": "Order Management Microservice",
+    "description": "Colección de pruebas para el microservicio de manejo de pedidos",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Verifica que el microservicio esté funcionando correctamente"
+      },
+      "response": []
+    },
+    {
+      "name": "Crear Pedido - Nuevo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerid\": \"CUST005\",\n  \"orderID\": \"ORD005\",\n  \"status\": \"Received\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/order/createorder",
+          "host": ["{{baseUrl}}"],
+          "path": ["order", "createorder"]
+        },
+        "description": "Crea una nueva orden en el sistema"
+      },
+      "response": []
+    },
+    {
+      "name": "Crear Pedido - Orden para CUST001",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerid\": \"CUST001\",\n  \"orderID\": \"ORD007\",\n  \"status\": \"Received\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/order/createorder",
+          "host": ["{{baseUrl}}"],
+          "path": ["order", "createorder"]
+        },
+        "description": "Crea una nueva orden para un cliente existente"
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar Estado - In Progress",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderID\": \"ORD001\",\n  \"status\": \"In progress\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/order/updateorderstatus",
+          "host": ["{{baseUrl}}"],
+          "path": ["order", "updateorderstatus"]
+        },
+        "description": "Actualiza el estado de una orden existente"
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar Estado - Sended",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderID\": \"ORD005\",\n  \"status\": \"Sended\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/order/updateorderstatus",
+          "host": ["{{baseUrl}}"],
+          "path": ["order", "updateorderstatus"]
+        },
+        "description": "Actualiza el estado de una orden a enviada"
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar por Cliente - CUST001",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerid\": \"CUST001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/order/findorderbycustomerid",
+          "host": ["{{baseUrl}}"],
+          "path": ["order", "findorderbycustomerid"]
+        },
+        "description": "Busca todas las órdenes de un cliente específico"
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar por Cliente - CUST005",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerid\": \"CUST005\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/order/findorderbycustomerid",
+          "host": ["{{baseUrl}}"],
+          "path": ["order", "findorderbycustomerid"]
+        },
+        "description": "Busca todas las órdenes de un cliente nuevo"
+      },
+      "response": []
+    },
+    {
+      "name": "Error - Crear Orden Duplicada",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerid\": \"CUST001\",\n  \"orderID\": \"ORD001\",\n  \"status\": \"Received\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/order/createorder",
+          "host": ["{{baseUrl}}"],
+          "path": ["order", "createorder"]
+        },
+        "description": "Intenta crear una orden con ID duplicado (debería fallar)"
+      },
+      "response": []
+    },
+    {
+      "name": "Error - Actualizar Orden Inexistente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderID\": \"ORD999\",\n  \"status\": \"In progress\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/order/updateorderstatus",
+          "host": ["{{baseUrl}}"],
+          "path": ["order", "updateorderstatus"]
+        },
+        "description": "Intenta actualizar una orden que no existe (debería fallar)"
+      },
+      "response": []
+    },
+    {
+      "name": "Error - Estado Inválido",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderID\": \"ORD001\",\n  \"status\": \"Invalid Status\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/order/updateorderstatus",
+          "host": ["{{baseUrl}}"],
+          "path": ["order", "updateorderstatus"]
+        },
+        "description": "Intenta usar un estado no válido (debería fallar)"
+      },
+      "response": []
+    }
+  ]
+}
