@@ -120,7 +120,7 @@ docker-compose up -d mysql mongo
    docker-compose up -d user-management-service order-management-service
    ```
 
-## 🔧 Scripts de Utilidad
+## Scripts de Utilidad
 
 - **`build.bat`**: Build completo con verificaciones
 - **`build-simple.bat`**: Build simplificado para desarrollo rápido
@@ -130,14 +130,14 @@ docker-compose up -d mysql mongo
 - **`quick-rebuild-user.bat`**: Rebuild rápido solo del User Service
 - **`test-eureka-registration.bat`**: Test de registro en Eureka
 
-## 🔍 URLs Importantes
+## URLs Importantes
 
 - **Eureka Dashboard**: http://localhost:8761
 - **API Gateway Health**: http://localhost:8080/actuator/health
 - **User Service**: http://localhost:8000/docs (Swagger UI)
 - **Order Service**: http://localhost:3000/api/orders
 
-## 🐛 Diagnóstico y Solución de Problemas
+## Diagnóstico y Solución de Problemas
 
 ### Problemas Comunes
 
@@ -158,7 +158,7 @@ docker-compose logs -f user-management-service
 ./verify-databases.bat
 ```
 
-## 📊 Variables de Entorno
+## Variables de Entorno
 
 ### User Management Service (Python)
 ```env
@@ -178,7 +178,7 @@ PORT=3000
 EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
 ```
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 reto-1/
@@ -191,21 +191,3 @@ reto-1/
 └── README.md             # Este archivo
 ```
 
-## 🤝 Contribución
-
-1. Fork del proyecto
-2. Crear una branch para tu feature
-3. Commit de tus cambios
-4. Push a la branch
-5. Crear un Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
-
----
-
-**¿Problemas?** Revisa los archivos de documentación específicos:
-- `BUILD-SCRIPTS.md` - Documentación de scripts
-- `DATABASE-FIX.md` - Solución de problemas de BD
-- `EUREKA-FIX.md` - Solución de problemas de Eureka
