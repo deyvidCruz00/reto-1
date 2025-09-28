@@ -8,12 +8,12 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true
-          lower-case-service-id: true
+          enabled: false
+          lower-case-service-id: false
       routes:
         # Rutas para Order Management Service
         - id: order-service
-          uri: lb://order-management-service
+          uri: http://order-service:3000
           predicates:
             - Path=/api/order/**
           filters:
@@ -21,7 +21,7 @@ spring:
             
         # Rutas para User Management Service  
         - id: user-service
-          uri: lb://user-management-service
+          uri: http://user-service:8000
           predicates:
             - Path=/api/customer/**
           filters:
@@ -29,14 +29,14 @@ spring:
 
         # Ruta para health checks
         - id: order-service-health
-          uri: lb://order-management-service
+          uri: http://order-service:3000
           predicates:
             - Path=/api/order-health
           filters:
             - RewritePath=/api/order-health, /health
             
         - id: user-service-health
-          uri: lb://user-management-service
+          uri: http://user-service:8000
           predicates:
             - Path=/api/user-health
           filters:
@@ -44,10 +44,11 @@ spring:
 
 eureka:
   client:
+    enabled: false
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
-    fetch-registry: true
-    register-with-eureka: true
+    fetch-registry: false
+    register-with-eureka: false
   instance:
     prefer-ip-address: true
     lease-renewal-interval-in-seconds: 30

@@ -31,9 +31,6 @@ services:
     environment:
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_PROFILES_ACTIVE=docker
-    depends_on:
-      eureka-server:
-        condition: service_healthy
     networks:
       - microservices-network
     healthcheck:
