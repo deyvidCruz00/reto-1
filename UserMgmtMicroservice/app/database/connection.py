@@ -8,20 +8,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from dotenv import load_dotenv
 load_dotenv()  # Asegurar que se cargan las variables de entorno
 
-# Obtener variables de entorno (siempre disponibles)
-DB_USER = os.getenv("DB_USER", "fastapi")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "fastapipass") 
-DB_HOST = os.getenv("DB_HOST", "mysql")  # Cambiar default a 'mysql' (nombre del contenedor)
-DB_PORT = os.getenv("DB_PORT", "3307")
-DB_NAME = os.getenv("DB_NAME", "usermgmt_db")
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    # Construir URL desde variables de entorno individuales
-    DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URL = "mysql+pymysql://fastapi:fastapipass@mysql-db:3306/usermgmt_db"
 
-print(f"Conectando a base de datos: {DATABASE_URL}")
-print(f"Variables de entorno - Host: {DB_HOST}, User: {DB_USER}, DB: {DB_NAME}")
 
 
 # Crear el engine de SQLAlchemy
