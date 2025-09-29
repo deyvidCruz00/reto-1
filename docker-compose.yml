@@ -13,12 +13,6 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
     networks:
       - microservices-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
   # API Gateway
   api-gateway:
@@ -101,10 +95,8 @@ services:
       - HOSTNAME=order-service
       - HOST_IP=order-service
     depends_on:
-      eureka-server:
-        condition: service_healthy
-      mongo:
-        condition: service_healthy
+      - eureka-server
+      - mongo
     networks:
       - microservices-network
     healthcheck:
@@ -135,10 +127,8 @@ services:
       - HOSTNAME=user-service
       - HOST_IP=user-service
     depends_on:
-      mysql:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
+      - mysql
+      - eureka-server
     networks:
       - microservices-network
     healthcheck:
@@ -147,6 +137,31 @@ services:
       timeout: 10s
       retries: 5
       start_period: 90s
+
+  login-service:
+    build:
+      context: ./LoginMicroservice   # carpeta donde está el código y el Dockerfile
+      dockerfile: Dockerfile
+    container_name: login-service
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8088
+      # Configuración DB
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=usermgmt_db
+      - DB_USER=root
+      - DB_PASSWORD=rootpass
+      # Configuración Eureka
+      - EUREKA_HOST=eureka-server
+    depends_on:
+      - mysql
+      - eureka-server
+    networks:
+      - microservices-network
+
 
 networks:
   microservices-network:
