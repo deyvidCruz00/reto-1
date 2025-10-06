@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
 import AddClient from './pages/addClient'
 import { ClientProvider } from './context/ClientContext'
+import Navbar from './components/navbar'
 
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
       <ClientProvider>
 
         <BrowserRouter>
+          <Navbar/>
           <Routes>
             <Route path='/' element={<h1>Hola Mundo pag1</h1>} />
             <Route path='/login' element={<LoginPage />} />
