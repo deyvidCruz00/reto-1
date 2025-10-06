@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import Union
+from typing import Union, List
 
 from app.database.connection import get_db
 from app.repositories.customer_repository import CustomerRepository
@@ -9,7 +9,8 @@ from app.schemas.customer import (
     CustomerUpdate, 
     CustomerResponse, 
     CreateCustomerResponse,
-    CustomerNotFound
+    CustomerNotFound,
+    CustomersListResponse
 )
 
 router = APIRouter(prefix="/customer", tags=["customer"])
@@ -171,6 +172,46 @@ async def update_customer(
             
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}"
+        )
+
+
+@router.get("/customers", response_model=List[CustomerResponse])
+async def get_all_customers(
+    db: Session = Depends(get_db)
+):
+    """
+    Obtener todos los clientes
+    
+    Args:
+        db: Sesión de base de datos
+        
+    Returns:
+        Lista de todos los clientes
+    """
+    try:
+        customer_repo = CustomerRepository(db)
+        customers = customer_repo.get_all_customers()
+        
+        # Convertir a CustomerResponse
+        customers_response = [
+            CustomerResponse(
+                id=customer.id,
+                document=customer.document,
+                firstname=customer.firstname,
+                lastname=customer.lastname,
+                address=customer.address,
+                phone=customer.phone,
+                email=customer.email
+            )
+            for customer in customers
+        ]
+        
+        return customers_response
+        
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

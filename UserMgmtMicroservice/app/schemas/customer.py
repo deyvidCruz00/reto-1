@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class CustomerBase(BaseModel):
@@ -44,3 +44,10 @@ class CreateCustomerResponse(BaseModel):
 class CustomerNotFound(BaseModel):
     """Schema para cuando no se encuentra un cliente"""
     message: str = "Customer not found"
+
+
+class CustomersListResponse(BaseModel):
+    """Schema para respuesta de lista de customers"""
+    customers: List[CustomerResponse]
+    total_count: int
+    message: str = "Customers retrieved successfully"
