@@ -19,7 +19,7 @@ spring:
           predicates:
             - Path=/api/order/**
           filters:
-            - RewritePath=/api/order/(?<path>.*), /order/${path}
+            - RewritePath=/api/order/(?<path>.*), /order/$\{path}
 
         # Rutas para User Management Service  
         - id: user-service
@@ -27,7 +27,7 @@ spring:
           predicates:
             - Path=/api/customer/**
           filters:
-            - RewritePath=/api/customer/(?<path>.*), /customer/${path}
+            - RewritePath=/api/customer/(?<path>.*), /customer/$\{path}
 
         # Ruta para health checks
         - id: order-service-health
