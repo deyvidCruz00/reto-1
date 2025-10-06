@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from typing import Optional
+from typing import Optional, List
 from app.models.customer import Customer
 from app.schemas.customer import CustomerCreate, CustomerUpdate
 
@@ -132,3 +132,12 @@ class CustomerRepository:
         except Exception as e:
             self.db.rollback()
             raise e
+    
+    def get_all_customers(self) -> List[Customer]:
+        """
+        Obtener todos los clientes
+        
+        Returns:
+            Lista de todos los clientes
+        """
+        return self.db.query(Customer).all()
