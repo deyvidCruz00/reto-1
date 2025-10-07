@@ -15,4 +15,7 @@ router.post('/findorderbycustomerid', OrderController.findOrderByCustomerId);
 // Obtener todas las órdenes - GET /order/
 router.get('/orders', OrderController.getAllOrders);
 
+// Obtener una orden por ID - GET /order/:orderID
+router.get('/orders/:orderID', OrderController.getOrderById);
+
 module.exports = router;

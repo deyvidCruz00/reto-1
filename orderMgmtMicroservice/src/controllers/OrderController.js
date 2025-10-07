@@ -65,6 +65,20 @@ class OrderController {
       });
     }
   }
+
+  async getOrderById(req, res) {
+    try {
+      const { orderID } = req.params;
+      const order = await OrderService.getOrderById(orderID);
+      
+      res.status(200).json(order);
+    } catch (error) {
+      console.error('Error in getOrderById:', error);
+      res.status(500).json({ 
+        error: error.message 
+      });
+    }
+  }
 }
 
 module.exports = new OrderController();
