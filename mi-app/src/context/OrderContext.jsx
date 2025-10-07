@@ -35,15 +35,15 @@ export function OrderProvider({ children }) {
         }
     };
 
-    const updateOrder = async (id, order) => {
+    const updateOrder = async (order) => {
         try {
-            await updateOrderRequest(id, order);
+            await updateOrderRequest(order);
         } catch (error) {
             console.error(error);
         }
     };
 
-    const getOrder = async (id) => {
+    const getOrderByClient = async (id) => {
         try {
             const res = await getOrderById(id);
             return res.data;
@@ -60,7 +60,7 @@ export function OrderProvider({ children }) {
                 getOrders,
                 createOrder,
                 updateOrder,
-                getOrder
+                getOrderByClient
             }}
         >
             {children}

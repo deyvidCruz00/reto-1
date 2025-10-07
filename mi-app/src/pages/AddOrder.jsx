@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 function AddOrder() {
   const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm();
-  const { createOrder, getOrder, updateOrder } = useOrders();
+  const { createOrder, getOrderByClient, updateOrder, getOrder } = useOrders();
   const navigate = useNavigate();
   const params = useParams();
 
@@ -14,7 +14,7 @@ function AddOrder() {
       if (params.id) {
         const order = await getOrder(params.id);
         console.log(order);
-        setValue("customerid", order.customerid);
+        setValue("customerid", order.customerID);
         setValue("orderID", order.orderID);
         setValue("status", order.status);
       }
@@ -24,7 +24,7 @@ function AddOrder() {
 
   const onSubmit = handleSubmit(async (data) => {
     if (params.id) {
-      await updateOrder(params.id, data);
+      await updateOrder(data);
     } else {
       await createOrder(data);
     }

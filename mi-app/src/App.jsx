@@ -36,6 +36,7 @@ export default function App() {
               <Route path='/addClient/:id' element={<AddClient />} />
               <Route path="/findClientbyid" element={<FindClientById />} />
               <Route path="/addOrder" element={<AddOrder />} />
+              <Route path="/addOrder/:id" element={<AddOrder />} />
               <Route path="/allOrders" element={<AllOrders />} />
               <Route path="/findorderbycustomerid" element={<FindOrderByCustomerId />} />
 
