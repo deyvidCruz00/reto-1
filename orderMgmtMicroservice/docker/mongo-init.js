@@ -63,38 +63,46 @@ db.orders.createIndex({ 'status': 1 });
 print('✅ Índices creados: orderID (único), customerID, status');
 
 // Insertar datos de ejemplo para pruebas
+// Los customerID corresponden a los IDs de la tabla customers en MySQL
 db.orders.insertMany([
   {
-    customerID: 'CUST001',
+    customerID: '1', // Juan Pérez (documento: 12345678)
     orderID: 'ORD001',
     status: 'Received',
     createdAt: new Date(),
     updatedAt: new Date()
   },
   {
-    customerID: 'CUST001',
+    customerID: '1', // Juan Pérez - segunda orden
     orderID: 'ORD002',
     status: 'In progress',
     createdAt: new Date(),
     updatedAt: new Date()
   },
   {
-    customerID: 'CUST002',
+    customerID: '2', // María González (documento: 87654321)
     orderID: 'ORD003',
     status: 'Sended',
     createdAt: new Date(),
     updatedAt: new Date()
   },
   {
-    customerID: 'CUST003',
+    customerID: '2', // María González - segunda orden
     orderID: 'ORD004',
+    status: 'Received',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    customerID: '1', // Juan Pérez - tercera orden
+    orderID: 'ORD005',
     status: 'Received',
     createdAt: new Date(),
     updatedAt: new Date()
   }
 ]);
 
-print('✅ Datos de ejemplo insertados: 4 órdenes de prueba');
+print('✅ Datos de ejemplo insertados: 5 órdenes de prueba para 2 clientes');
 
 // Verificar la configuración
 const orderCount = db.orders.countDocuments();

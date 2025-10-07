@@ -78,6 +78,22 @@ class OrderService {
       throw error;
     }
   }
+
+  async getAllOrders() {
+    try {
+      const orders = await Order.find();
+      
+      if (orders.length === 0) {
+        return [];
+      }
+
+      // Convertir a DTOs de respuesta
+      return OrderResponseDto.fromOrders(orders);
+    } catch (error) {
+      console.error('Error getting all orders:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new OrderService();

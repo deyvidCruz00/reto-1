@@ -52,6 +52,19 @@ class OrderController {
       });
     }
   }
+
+  async getAllOrders(req, res) {
+    try {
+      const orders = await OrderService.getAllOrders();
+      
+      res.status(200).json(orders);
+    } catch (error) {
+      console.error('Error in getAllOrders:', error);
+      res.status(500).json({ 
+        error: error.message 
+      });
+    }
+  }
 }
 
 module.exports = new OrderController();
