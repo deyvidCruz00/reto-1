@@ -94,6 +94,29 @@ class OrderService {
       throw error;
     }
   }
+
+  async getOrderById(orderID) {
+  try {
+    // Validar que se proporcione el orderID
+    if (!orderID || orderID.trim() === '') {
+      throw new Error('Order ID is required');
+    }
+
+    // ✅ CAMBIO PRINCIPAL: Usar findOne con orderID en lugar de findById
+    const order = await Order.findOne({ orderID: orderID });
+    
+    // Verificar si se encontró la orden
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    // ✅ CAMBIO: Usar fromOrders con array de una orden
+    return OrderResponseDto.fromOrders([order])[0];
+  } catch (error) {
+    console.error('Error getting order by ID:', error);
+    throw error;
+  }
+}
 }
 
 module.exports = new OrderService();
