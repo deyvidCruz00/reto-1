@@ -12,4 +12,7 @@ router.post('/updateorderstatus', OrderController.updateOrderStatus);
 // Buscar pedido por id de cliente - POST /order/findorderbycustomerid
 router.post('/findorderbycustomerid', OrderController.findOrderByCustomerId);
 
+// Obtener todas las órdenes - GET /order/
+router.get('/orders', OrderController.getAllOrders);
+
 module.exports = router;
