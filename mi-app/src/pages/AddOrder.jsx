@@ -5,14 +5,14 @@ import { useEffect } from "react";
 
 function AddOrder() {
   const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm();
-  const { createOrder, getOrderByClient, updateOrder, getOrder } = useOrders();
+  const { createOrder, getOrderByOrderId, updateOrder } = useOrders();
   const navigate = useNavigate();
   const params = useParams();
 
   useEffect(() => {
     async function loadOrder() {
       if (params.id) {
-        const order = await getOrder(params.id);
+        const order = await getOrderByOrderId(params.id);
         console.log(order);
         setValue("customerid", order.customerID);
         setValue("orderID", order.orderID);
@@ -20,7 +20,7 @@ function AddOrder() {
       }
     }
     loadOrder();
-  }, [params.id, getOrder, setValue]);
+  }, [params.id, getOrderByOrderId, setValue]);
 
   const onSubmit = handleSubmit(async (data) => {
     if (params.id) {
@@ -36,8 +36,9 @@ function AddOrder() {
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-800">
       <div className="bg-zinc-900 shadow-2xl shadow-black/30 border border-zinc-700 max-w-md w-full p-8 rounded-xl">
         <h1 className="text-3xl font-bold text-center mb-6 text-white">
-          Agregar Pedido
+          {params.id ? "Editar Pedido" : "Agregar Pedido"}
         </h1>
+
 
         <form onSubmit={onSubmit} className="space-y-4">
           {/* CustomerId */}
@@ -49,10 +50,11 @@ function AddOrder() {
               type="text"
               placeholder="CustomerId"
               {...register("customerid", { required: "CustomerId es obligatorio" })}
+              disabled={!!params.id}
               className={`w-full bg-zinc-800 text-white px-4 py-2 rounded-md outline-none border ${errors.customerid
                 ? "border-red-500 focus:ring-2 focus:ring-red-500"
                 : "border-zinc-700 focus:ring-2 focus:ring-blue-500"
-                } transition`}
+                } ${params.id ? "opacity-60 cursor-not-allowed" : ""} transition`}
             />
             {errors.customerid && (
               <p className="text-red-400 text-sm mt-1">
@@ -70,10 +72,11 @@ function AddOrder() {
               type="text"
               placeholder="OrderID"
               {...register("orderID", { required: "OrderID es obligatorio" })}
+              disabled={!!params.id}
               className={`w-full bg-zinc-800 text-white px-4 py-2 rounded-md outline-none border ${errors.orderID
                 ? "border-red-500 focus:ring-2 focus:ring-red-500"
                 : "border-zinc-700 focus:ring-2 focus:ring-blue-500"
-                } transition`}
+                } ${params.id ? "opacity-60 cursor-not-allowed" : ""} transition`}
             />
             {errors.orderID && (
               <p className="text-red-400 text-sm mt-1">
@@ -81,6 +84,7 @@ function AddOrder() {
               </p>
             )}
           </div>
+
 
           {/* Status como select */}
           <div>
@@ -110,8 +114,9 @@ function AddOrder() {
             type="submit"
             className="w-full py-2 mt-4 font-semibold rounded-md text-white transition-all duration-200 bg-blue-600 hover:bg-blue-700"
           >
-            Guardar pedido
+            {params.id ? "Actualizar pedido" : "Guardar pedido"}
           </button>
+
         </form>
       </div>
     </div>

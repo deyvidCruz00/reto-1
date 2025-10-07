@@ -3,7 +3,8 @@ import {
     createOrderRequest,
     getOrdersRequest,
     updateOrderRequest,
-    getOrderById
+    getOrderById,
+    getOrder
 } from "../api/order";
 
 const OrderContext = createContext();
@@ -52,6 +53,15 @@ export function OrderProvider({ children }) {
         }
     };
 
+     const getOrderByOrderId = async (id) => {
+            try {
+                const res = await getOrder(id);
+                return res.data;
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
 
     return (
         <OrderContext.Provider
@@ -60,7 +70,8 @@ export function OrderProvider({ children }) {
                 getOrders,
                 createOrder,
                 updateOrder,
-                getOrderByClient
+                getOrderByClient,
+                getOrderByOrderId
             }}
         >
             {children}

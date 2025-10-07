@@ -85,7 +85,7 @@ export default function Navbar() {
 
 
                         <li>
-                            <Link to="/login" onClick={() => logout()} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md font-medium transition-colors"> Logout </Link>
+                            <Link to="/" onClick={() => logout()} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md font-medium transition-colors"> Logout </Link>
                         </li>
                     </>
                 ) : (

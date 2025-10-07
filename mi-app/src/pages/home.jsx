@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 function Home() {
   const [text, setText] = useState("");
-  const message = "Bienvenido al Sistema de Gestión de Pedidos 🚀";
+  const message = "Bienvenido al Sistema de Gestión de Pedidos";
 
   useEffect(() => {
     setText(""); // Resetear el texto

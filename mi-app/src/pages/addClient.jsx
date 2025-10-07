@@ -41,7 +41,7 @@ function AddClient() {
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-800">
       <div className="bg-zinc-900 shadow-2xl shadow-black/30 border border-zinc-700 max-w-md w-full p-8 rounded-xl">
         <h1 className="text-3xl font-bold text-center mb-6 text-white">
-          Agregar Cliente
+          {params.id ? "Editar Cliente" : "Agregar Cliente"}
         </h1>
 
         <form onSubmit={onSubmit} className="space-y-4">
@@ -76,14 +76,11 @@ function AddClient() {
 
           <button
             type="submit"
-            disabled={loading}
-            className={`w-full py-2 mt-4 font-semibold rounded-md text-white transition-all duration-200 ${loading
-              ? "bg-blue-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-              }`}
+            className="w-full py-2 mt-4 font-semibold rounded-md text-white transition-all duration-200 bg-blue-600 hover:bg-blue-700"
           >
-            {loading ? "Guardando..." : "Guardar Cliente"}
+            {params.id ? "Actualizar Cliente" : "Guardar Cliente  "}
           </button>
+
         </form>
       </div>
     </div>

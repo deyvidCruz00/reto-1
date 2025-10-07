@@ -7,7 +7,7 @@ function Home() {
           Ya estás dentro de la aplicación, haz uso de todos los beneficios.
         </p>
         <p className="text-gray-400 italic">
-          Usa la barra de navegación superior para empezar 🚀
+          Usa la barra de navegación superior para empezar 
         </p>
       </div>
     </div>
