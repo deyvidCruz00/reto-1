@@ -22,7 +22,7 @@ export default function Navbar() {
     return (
         <nav className="bg-zinc-800 text-white shadow-lg rounded-xl my-3 mx-auto max-w-6xl flex justify-between items-center py-4 px-8 transition-all duration-300">
             <h1 className="text-3xl font-bold tracking-wide hover:text-indigo-400 transition-colors">
-                <Link to={isAuthenticated ? "/" : "/login"}>Orders Manager</Link>
+                <Link to={isAuthenticated ? "/homeIn" : "/"}>Orders Manager</Link>
             </h1>
 
             <ul className="flex gap-x-4 items-center">
@@ -48,9 +48,6 @@ export default function Navbar() {
                                     <DropdownItem to="/addClient" onClick={() => setCustomerDropdown(false)}>
                                         ➕ Crear cliente
                                     </DropdownItem>
-                                    <DropdownItem to="/updatecustomer" onClick={() => setCustomerDropdown(false)}>
-                                        ✏️ Modificar cliente
-                                    </DropdownItem>
                                     <DropdownItem to="/findClientbyid" onClick={() => setCustomerDropdown(false)}>
                                         🔍 Buscar cliente por ID
                                     </DropdownItem>
@@ -75,11 +72,11 @@ export default function Navbar() {
                                     <DropdownItem to="/addOrder" onClick={() => setOrderDropdown(false)}>
                                         🛒 Crear pedido
                                     </DropdownItem>
-                                    <DropdownItem to="/updateorderstatus" onClick={() => setOrderDropdown(false)}>
-                                        ⚙️ Modificar estado del pedido
-                                    </DropdownItem>
                                     <DropdownItem to="/findorderbycustomerid" onClick={() => setOrderDropdown(false)}>
                                         🔎 Buscar pedido por ID de cliente
+                                    </DropdownItem>
+                                    <DropdownItem to="/allOrders" onClick={() => setOrderDropdown(false)}>
+                                        📋 Listar todos los pedidos
                                     </DropdownItem>
                                 </ul>
                             )}

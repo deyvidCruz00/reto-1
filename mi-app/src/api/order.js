@@ -9,4 +9,4 @@ export const updateOrderRequest = async (id, order) =>
   axios.put(`/order/updateorderstatus/${id}`, order);
 
 export const getOrderById = async (id) =>
-  axios.get(`/order/findorderbycustomerid/${id}`);
+  axios.post("/order/findorderbycustomerid/", { customerid: id });

@@ -28,7 +28,7 @@ function AddOrder() {
     } else {
       await createOrder(data);
     }
-    navigate('/allClients');
+    navigate('/allOrders');
     reset();
   });
 
