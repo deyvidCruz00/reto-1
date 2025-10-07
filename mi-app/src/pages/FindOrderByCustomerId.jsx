@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useOrders } from "../context/OrderContext";
 
 function FindOrderByCustomerId() {
-    const { getOrder } = useOrders();
+    const { getOrderByClient } = useOrders();
     const [customerId, setCustomerId] = useState("");
     const [foundOrders, setFoundOrders] = useState([]);
     const [error, setError] = useState("");
@@ -18,7 +18,7 @@ function FindOrderByCustomerId() {
         try {
             setLoading(true);
             setError("");
-            const data = await getOrder(customerId);
+            const data = await getOrderByClient(customerId);
 
             if (data && data.length > 0) {
                 setFoundOrders(data);
