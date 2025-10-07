@@ -3,7 +3,9 @@ import {
     createClientRequest,
     getClientsRequest,
     updateClientRequest,
+    getClientById
 } from "../api/client";
+import { get } from "react-hook-form";
 
 const ClientContext = createContext();
 
@@ -42,15 +44,15 @@ export function ClientProvider({ children }) {
         }
     };
 
-    const deleteClient = async (id) => {
+    const getClient = async (id) => {
         try {
-            const res = await deleteClientRequest(id);
-            if (res.status === 204)
-                setClients(clients.filter((client) => client._id !== id));
+            const res = await getClientById(id);
+            return res.data;
         } catch (error) {
             console.error(error);
         }
     };
+
 
     return (
         <ClientContext.Provider
@@ -59,7 +61,7 @@ export function ClientProvider({ children }) {
                 getClients,
                 createClient,
                 updateClient,
-                deleteClient,
+                getClient
             }}
         >
             {children}
