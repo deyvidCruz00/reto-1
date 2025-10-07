@@ -72,7 +72,7 @@ export default function Navbar() {
                             </button>
                             {orderDropdown && (
                                 <ul className="absolute top-full left-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl w-64 overflow-hidden animate-fadeIn z-10">
-                                    <DropdownItem to="/createorder" onClick={() => setOrderDropdown(false)}>
+                                    <DropdownItem to="/addOrder" onClick={() => setOrderDropdown(false)}>
                                         🛒 Crear pedido
                                     </DropdownItem>
                                     <DropdownItem to="/updateorderstatus" onClick={() => setOrderDropdown(false)}>

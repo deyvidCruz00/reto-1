@@ -33,21 +33,8 @@ function AddClient() {
     } else {
       await createClient(data);
     }
-
-
-
-    try {
-      setLoading(true);
-      console.log(data);
-      createClient(data);
-      navigate('/allClients');
-      // await createClient(data);
-      reset();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+    navigate('/allClients');
+    reset();
   });
 
   return (
