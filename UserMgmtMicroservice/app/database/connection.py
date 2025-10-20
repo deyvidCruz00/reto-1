@@ -8,8 +8,13 @@ from sqlalchemy.exc import SQLAlchemyError
 from dotenv import load_dotenv
 load_dotenv()  # Asegurar que se cargan las variables de entorno
 
+DB_HOST = os.getenv("DB_HOST", "mysql")
+DB_PORT = os.getenv("DB_PORT", "3306")
+DB_NAME = os.getenv("DB_NAME", "usermgmt_db")
+DB_USER = os.getenv("DB_USER", "fastapi")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "fastapipass")
 
-DATABASE_URL = "mysql+pymysql://fastapi:fastapipass@mysql-db:3306/usermgmt_db"
+DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 
 

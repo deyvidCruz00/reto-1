@@ -11,6 +11,7 @@ from app.config.eureka import init_eureka, stop_eureka
 
 # Cargar variables de entorno
 load_dotenv()
+EUREKA_ENABLED = os.getenv("EUREKA_ENABLED", "true").lower() in ["true", "1", "yes"]
 
 # Crear la aplicación FastAPI
 app = FastAPI(
@@ -101,26 +102,30 @@ async def startup_event():
                 print("❌ All database connection attempts failed")
                 # Continuar sin base de datos para permitir health checks
     
-    try:
-        # Inicializar Eureka en thread separado para evitar bloqueo
-        init_eureka()
-        print("✅ Eureka client initialized successfully")
-        
-    except Exception as e:
-        print(f"⚠️  Error initializing Eureka: {e}")
-        # No fallar el startup si Eureka no está disponible
+    if EUREKA_ENABLED:
+        try:
+            # Inicializar Eureka en thread separado para evitar bloqueo
+            init_eureka()
+            print("✅ Eureka client initialized successfully")
+            
+        except Exception as e:
+            print(f"⚠️  Error initializing Eureka: {e}")
+            # No fallar el startup si Eureka no está disponible
+    else:
+        print("Eureka integration: disabled (EUREKA_ENABLED=false)")
 
 @app.on_event("shutdown") 
 async def shutdown_event():
     """Evento que se ejecuta al cerrar la aplicación"""
     print("Shutting down User Management Microservice...")
-    try:
-        # Parar Eureka de forma segura
-        stop_eureka()
-        print("Eureka client stopped successfully")
-    except Exception as e:
-        print(f"Error during shutdown: {e}")
-        # No fallar el shutdown por errores de Eureka
+    if EUREKA_ENABLED:
+        try:
+            # Parar Eureka de forma segura
+            stop_eureka()
+            print("Eureka client stopped successfully")
+        except Exception as e:
+            print(f"Error during shutdown: {e}")
+            # No fallar el shutdown por errores de Eureka
 
 if __name__ == "__main__":
     # Obtener configuración del entorno
@@ -130,8 +135,9 @@ if __name__ == "__main__":
     
     print(f"Starting server on {host}:{port}")
     
-    # Registrar función de limpieza al salir
-    atexit.register(stop_eureka)
+    # Registrar función de limpieza al salir (solo si Eureka activo)
+    if EUREKA_ENABLED:
+        atexit.register(stop_eureka)
     
     uvicorn.run(
         "main:app",

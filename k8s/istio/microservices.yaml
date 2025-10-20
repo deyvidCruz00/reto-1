@@ -1,0 +1,466 @@
+# Namespace with Istio sidecar injection
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: microservices
+  labels:
+    istio-injection: enabled
+---
+# MongoDB for Order service
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+  namespace: microservices
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:6
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: admin
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: admin123
+          volumeMounts:
+            - name: mongo-data
+              mountPath: /data/db
+            - name: mongo-init
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mongo-data
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+        - name: mongo-init
+          configMap:
+            name: mongo-init-script
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: microservices
+spec:
+  selector:
+    app: mongo
+  ports:
+    - name: mongo
+      port: 27017
+      targetPort: 27017
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-init-script
+  namespace: microservices
+data:
+  mongo-init.js: |
+    print('Initializing orderdb...');
+    db = db.getSiblingDB('orderdb');
+    db.createUser({ user: 'orderapp', pwd: 'orderapp123', roles: [ { role: 'readWrite', db: 'orderdb' } ] });
+    db.createCollection('orders');
+---
+# MySQL for User service
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: microservices
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: rootpass
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+            - name: mysql-init
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+        - name: mysql-init
+          configMap:
+            name: mysql-init-script
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: microservices
+spec:
+  selector:
+    app: mysql
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-script
+  namespace: microservices
+data:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS usermgmt_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    USE usermgmt_db;
+    CREATE TABLE IF NOT EXISTS customers (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      document VARCHAR(50) NOT NULL UNIQUE,
+      firstname VARCHAR(100) NOT NULL,
+      lastname VARCHAR(100) NOT NULL,
+      address VARCHAR(255) NOT NULL,
+      phone VARCHAR(20) NOT NULL,
+      email VARCHAR(100) NOT NULL UNIQUE,
+      INDEX idx_document (document),
+      INDEX idx_email (email)
+    );
+    DROP USER IF EXISTS 'fastapi'@'%';
+    CREATE USER 'fastapi'@'%' IDENTIFIED WITH mysql_native_password BY 'fastapipass';
+    GRANT ALL PRIVILEGES ON usermgmt_db.* TO 'fastapi'@'%';
+    FLUSH PRIVILEGES;
+---
+# Login service (Spring Boot) – no Eureka, exposed via Istio
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: login
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: login
+  template:
+    metadata:
+      labels:
+        app: login
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -z mysql 3306; do echo waiting for mysql; sleep 2; done']
+      containers:
+        - name: login
+          image: login-microservice:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8088
+          env:
+            - name: SERVER_PORT
+              value: "8088"
+            - name: DB_HOST
+              value: "mysql"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USER
+              value: "fastapi"
+            - name: DB_PASSWORD
+              value: "fastapipass"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql:3306/usermgmt_db"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "fastapi"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "fastapipass"
+            - name: EUREKA_CLIENT_REGISTER_WITH_EUREKA
+              value: "false"
+            - name: EUREKA_CLIENT_FETCH_REGISTRY
+              value: "false"
+          livenessProbe:
+            tcpSocket:
+              port: 8088
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 8088
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: login
+  namespace: microservices
+spec:
+  selector:
+    app: login
+  ports:
+    - name: http
+      port: 8088
+      targetPort: 8088
+---
+# Order service – EUREKA disabled
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      initContainers:
+        - name: wait-for-mongo
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -z mongo 27017; do echo waiting for mongo; sleep 2; done']
+      containers:
+        - name: order
+          image: order-microservice:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "3000"
+            - name: EUREKA_ENABLED
+              value: "false"
+            - name: MONGODB_URI
+              value: "mongodb://admin:admin123@mongo:27017/orderdb?authSource=admin"
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: microservices
+spec:
+  selector:
+    app: order
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+# User service – EUREKA disabled
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -z mysql 3306; do echo waiting for mysql; sleep 2; done']
+      containers:
+        - name: user
+          image: user-microservice:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "8000"
+            - name: EUREKA_ENABLED
+              value: "false"
+            - name: DB_HOST
+              value: "mysql"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: "usermgmt_db"
+            - name: DB_USER
+              value: "fastapi"
+            - name: DB_PASSWORD
+              value: "fastapipass"
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: microservices
+spec:
+  selector:
+    app: user
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+---
+# Istio Gateway and VirtualServices mapping /api prefix
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: microservices-gateway
+  namespace: microservices
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: login-vs
+  namespace: microservices
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - microservices/microservices-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /api/login
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            host: login.microservices.svc.cluster.local
+            port:
+              number: 8088
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: order-vs
+  namespace: microservices
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - microservices/microservices-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /api/order
+      route:
+        - destination:
+            host: order-service.microservices.svc.cluster.local
+            port:
+              number: 3000
+    - match:
+        - uri:
+            exact: /api/order-health
+      rewrite:
+        uri: /health
+      route:
+        - destination:
+            host: order-service.microservices.svc.cluster.local
+            port:
+              number: 3000
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: user-vs
+  namespace: microservices
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - microservices/microservices-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /api/customer
+      route:
+        - destination:
+            host: user-service.microservices.svc.cluster.local
+            port:
+              number: 8000
+    - match:
+        - uri:
+            exact: /api/user-health
+      rewrite:
+        uri: /health
+      route:
+        - destination:
+            host: user-service.microservices.svc.cluster.local
+            port:
+              number: 8000

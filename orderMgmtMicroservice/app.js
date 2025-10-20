@@ -7,6 +7,9 @@ const eurekaClient = require('./src/config/eureka');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const EUREKA_ENABLED = (process.env.EUREKA_ENABLED || 'true').toString().toLowerCase() === 'true' ||
+                       (process.env.EUREKA_ENABLED || '').toString().toLowerCase() === '1' ||
+                       (process.env.EUREKA_ENABLED || '').toString().toLowerCase() === 'yes';
 
 // Conectar a la base de datos
 connectDB();
@@ -55,21 +58,30 @@ app.listen(PORT, () => {
   console.log(`Order Management Microservice running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
   
-  // Registrar el servicio en Eureka
-  eurekaClient.start(error => {
-    if (error) {
-      console.error('Eureka registration failed:', error);
-    } else {
-      console.log('Service registered with Eureka successfully');
-    }
-  });
+  // Registrar el servicio en Eureka (opcional)
+  if (EUREKA_ENABLED) {
+    console.log('Eureka integration: enabled');
+    eurekaClient.start(error => {
+      if (error) {
+        console.error('Eureka registration failed:', error);
+      } else {
+        console.log('Service registered with Eureka successfully');
+      }
+    });
+  } else {
+    console.log('Eureka integration: disabled (EUREKA_ENABLED=false)');
+  }
 });
 
 // Graceful shutdown
 process.on('SIGINT', () => {
   console.log('Shutting down gracefully...');
-  eurekaClient.stop(() => {
-    console.log('Eureka client stopped');
+  if (EUREKA_ENABLED) {
+    eurekaClient.stop(() => {
+      console.log('Eureka client stopped');
+      process.exit(0);
+    });
+  } else {
     process.exit(0);
-  });
+  }
 });
